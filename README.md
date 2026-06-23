@@ -1,4 +1,4 @@
-![Doge AirGap banner](assets/doge-airgap-banner.svg)
+![Doge AirGap banner](assets/doge-airgap-banner.png)
 
 # AirGap Isolated Module for Dogecoin
 
