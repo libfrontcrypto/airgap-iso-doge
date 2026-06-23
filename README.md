@@ -1,3 +1,5 @@
+![Doge AirGap banner](assets/doge-airgap-banner.svg)
+
 # AirGap Isolated Module for Dogecoin
 
 Dogecoin isolated module for AirGap Wallet and AirGap Vault.
