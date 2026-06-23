@@ -26,7 +26,7 @@ export class DogecoinApi {
   private readonly blockchairBaseUrl: string = 'https://api.blockchair.com/dogecoin'
 
   private get readBaseUrls(): string[] {
-    const urls = [this.blockchairBaseUrl, this.baseUrl]
+    const urls = [this.baseUrl, this.blockchairBaseUrl]
 
     return urls.filter((url, index) => urls.indexOf(url) === index)
   }
@@ -164,8 +164,8 @@ export class DogecoinApi {
       }))
     }
 
-    if (Array.isArray(json.txrefs)) {
-      return json.txrefs.map((u: any) => ({
+    if (Array.isArray(json.txrefs) || Array.isArray(json.unconfirmed_txrefs)) {
+      return [...(json.txrefs ?? []), ...(json.unconfirmed_txrefs ?? [])].map((u: any) => ({
         txid: u.tx_hash,
         vout: u.tx_output_n,
         value: String(u.value),
@@ -212,8 +212,8 @@ export class DogecoinApi {
       }))
     }
 
-    if (Array.isArray(json.txrefs)) {
-      return json.txrefs.slice(0, limit).map((tx: any) => ({
+    if (Array.isArray(json.txrefs) || Array.isArray(json.unconfirmed_txrefs)) {
+      return [...(json.txrefs ?? []), ...(json.unconfirmed_txrefs ?? [])].slice(0, limit).map((tx: any) => ({
         hash: tx.tx_hash,
         blockHeight: tx.block_height,
         timestamp: tx.confirmed ? Math.floor(new Date(tx.confirmed).getTime() / 1000) : undefined,
