@@ -26,7 +26,7 @@ export class DogecoinApi {
   private readonly blockchairBaseUrl: string = 'https://api.blockchair.com/dogecoin'
 
   private get readBaseUrls(): string[] {
-    const urls = [this.blockchairBaseUrl, this.baseUrl]
+    const urls = [this.baseUrl, this.blockchairBaseUrl]
 
     return urls.filter((url, index) => urls.indexOf(url) === index)
   }
@@ -38,7 +38,7 @@ export class DogecoinApi {
 
     const controller = typeof AbortController === 'function' ? new AbortController() : undefined
     const timeout = typeof setTimeout === 'function'
-      ? setTimeout(() => controller?.abort(), 8000)
+      ? setTimeout(() => controller?.abort(), 6000)
       : undefined
 
     let response: Response
@@ -70,14 +70,28 @@ export class DogecoinApi {
   }
 
   private async getFirstJson(paths: (baseUrl: string) => string): Promise<{ baseUrl: string; json: any } | undefined> {
-    for (const baseUrl of this.readBaseUrls) {
-      const json = await this.getJsonOrUndefined(paths(baseUrl), baseUrl)
-      if (json !== undefined) {
-        return { baseUrl, json }
-      }
+    const urls = this.readBaseUrls
+    if (urls.length === 0) {
+      return undefined
     }
 
-    return undefined
+    return new Promise<{ baseUrl: string; json: any } | undefined>((resolve) => {
+      let settled = false
+      let remaining = urls.length
+
+      for (const baseUrl of urls) {
+        this.getJsonOrUndefined(paths(baseUrl), baseUrl).then((json) => {
+          remaining--
+          if (!settled && json !== undefined) {
+            settled = true
+            resolve({ baseUrl, json })
+          } else if (!settled && remaining === 0) {
+            settled = true
+            resolve(undefined)
+          }
+        })
+      }
+    })
   }
 
   /**
@@ -164,8 +178,8 @@ export class DogecoinApi {
       }))
     }
 
-    if (Array.isArray(json.txrefs)) {
-      return json.txrefs.map((u: any) => ({
+    if (Array.isArray(json.txrefs) || Array.isArray(json.unconfirmed_txrefs)) {
+      return [...(json.txrefs ?? []), ...(json.unconfirmed_txrefs ?? [])].map((u: any) => ({
         txid: u.tx_hash,
         vout: u.tx_output_n,
         value: String(u.value),
@@ -212,8 +226,8 @@ export class DogecoinApi {
       }))
     }
 
-    if (Array.isArray(json.txrefs)) {
-      return json.txrefs.slice(0, limit).map((tx: any) => ({
+    if (Array.isArray(json.txrefs) || Array.isArray(json.unconfirmed_txrefs)) {
+      return [...(json.txrefs ?? []), ...(json.unconfirmed_txrefs ?? [])].slice(0, limit).map((tx: any) => ({
         hash: tx.tx_hash,
         blockHeight: tx.block_height,
         timestamp: tx.confirmed ? Math.floor(new Date(tx.confirmed).getTime() / 1000) : undefined,

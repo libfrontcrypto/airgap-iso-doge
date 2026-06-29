@@ -36,6 +36,8 @@ BTC (LN): libfrontcrypto@coinos.pro
 
 DOGE: DG5vRxuUjFj4SxFU3pcc3HAHgqh8kEiZyC
 
+LTC: LX7yrkNWogGHw7rLfjTrjtigYDkuv6HuWR
+
 ETH/ERC-20: 0x523f461f87170b090732c49bb6722C975C66aa18
 
 ## Build

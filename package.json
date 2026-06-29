@@ -1,6 +1,6 @@
 {
   "name": "@libfrontcrypto/airgap-iso-doge",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dogecoin isolated module for AirGap Wallet and Vault",
   "main": "src/index.ts",
   "scripts": {
